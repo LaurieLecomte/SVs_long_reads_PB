@@ -10,6 +10,7 @@
 # 
 # parallel -a 02_infos/ind_ONT.txt -j 4 srun -c 10 -p medium --time=3-00:00:00 -J 03.1_nanovar_call_{} --mem=100G -o log/03.1_nanovar_call_{}_%j.log /bin/sh ./01_scripts/03.1_nanovar_call.sh {} &
 
+#srun -c 10 -p medium --time=3-00:00:00 -J 03.1_nanovar_call_safoPUVx_001-21 --mem=100G -o log/03.1_nanovar_call_safoPUVx_001-21_%j.log /bin/sh ./01_scripts/03.1_nanovar_call.sh safoPUVx_001-21 &
 
 # Possible adjustment : first run nanovar on a single sample to produce required indexes, then re-run for other (or all) samples
 
@@ -25,25 +26,30 @@ FILT_DIR="07_filtered"
 
 CPU=10
 
+BAM="$BAM_DIR/"$SAMPLE".ccs.bam"
+
+EXCL_BED="02_infos/excl_chrs.bed.gz"
+
+
 # 0. Create output dir
-#if [[ ! -d "$CALLS_DIR/nanovar/$SAMPLE" ]]
-#then
-#  mkdir "$CALLS_DIR/nanovar/$SAMPLE"
-#fi
+if [[ ! -d "$CALLS_DIR/nanovar/$SAMPLE" ]]
+then
+  mkdir "$CALLS_DIR/nanovar/$SAMPLE"
+fi
 
 # 1. Run NanoVar
-nanovar $BAM_DIR/"$SAMPLE".bam $GENOME_NV $CALLS_DIR/nanovar/$SAMPLE -x ont -t $CPU 
+nanovar $BAM $GENOME_NV $CALLS_DIR/nanovar/$SAMPLE -x pacbio-ccs -t $CPU -f $EXCL_BED
 
 # 2. Sort, remove SVs where END is < than POS (usually happens if a SV is at POS 1 on an uplaced contig), then compress and index
-bcftools sort $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE".nanovar.pass.vcf | bcftools filter -e "POS > INFO/END" > $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_all_contigs.vcf
-bgzip $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_all_contigs.vcf -f
-tabix -p vcf $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_all_contigs.vcf.gz -f
+bcftools sort $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE".nanovar.pass.vcf | bcftools filter -e "POS > INFO/END" > $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_chrs.vcf
+bgzip $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_chrs.vcf -f
+tabix -p vcf $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_chrs.vcf.gz -f
 
 # 3. Filter out unplaced contigs
-bcftools view -R $CHR_BED $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_all_contigs.vcf.gz > $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE".vcf
+#bcftools view -R $CHR_BED $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_all_contigs.vcf.gz > $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE".vcf
 
 # 4. Filter for PASS calls and SVs other than BNDs 
-bcftools filter -i 'FILTER="PASS" & SVTYPE!="BND"' $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE".vcf > $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_PASS.vcf
+bcftools filter -i 'FILTER="PASS" & SVTYPE!="BND"' $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_chrs.vcf.gz > $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_PASS.vcf
 
 # 5. Add read names
 ## Extract required info from VCF
