@@ -19,6 +19,8 @@ FILT_DIR="07_filtered"
 
 CPU=1
 
+# LOAD REQUIRED MODULES
+module load bcftools/1.15
 
 # 1. Prepare file with new read names
 ## Extract old names
@@ -34,8 +36,8 @@ paste -d "\t" $MERGED_DIR/svim/svim_PASS_refined.old_names $MERGED_DIR/svim/svim
 bcftools filter -i 'FILTER="PASS" & SVTYPE!="BND"' $MERGED_DIR/svim/svim_PASS_refined.vcf | bcftools annotate -x ^INFO/SVTYPE,INFO/SVLEN,INFO/END,INFO/OLDTYPE,INFO/IRIS_REFINED | bcftools reheader -s $MERGED_DIR/svim/svim_PASS_refined.old_new_names | bcftools sort > $FILT_DIR/svim/svim_PASS.vcf
 
 # Clean up 
-rm $MERGED_DIR/svim/svim_PASS_refined_dupToIns.vcf
-rm $MERGED_DIR/svim/svim_PASS_refined_noGenotypes.vcf
-rm $MERGED_DIR/svim/svim_PASS_refined.old_names
-rm $MERGED_DIR/svim/svim_PASS_refined.new_names
-rm $MERGED_DIR/svim/svim_PASS_refined.old_new_names
+#rm $MERGED_DIR/svim/svim_PASS_refined_dupToIns.vcf
+#rm $MERGED_DIR/svim/svim_PASS_refined_noGenotypes.vcf
+#rm $MERGED_DIR/svim/svim_PASS_refined.old_names
+#rm $MERGED_DIR/svim/svim_PASS_refined.new_names
+#rm $MERGED_DIR/svim/svim_PASS_refined.old_new_names

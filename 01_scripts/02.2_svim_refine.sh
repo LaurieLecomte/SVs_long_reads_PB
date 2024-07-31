@@ -4,7 +4,7 @@
 # Launch on valeria in module collection with jasmine and iris
 
 # manitou
-# parallel -a 02_infos/ind_ONT.txt -j 4 srun -c 10 -p medium --time=3-00:00:00 -J 02.2_svim_refine_{} --mem=80G -o log/02.2_svim_refine_{}_%j.log /bin/sh ./01_scripts/02.2_svim_refine.sh {} &
+# parallel -a 02_infos/ind_PB.txt -j 4 srun -c 10 -p medium --time=3-00:00:00 -J 02.2_svim_refine_{} --mem=80G -o log/02.2_svim_refine_{}_%j.log /bin/sh ./01_scripts/02.2_svim_refine.sh {} &
 
 # valeria
 # parallel -a 02_infos/ind_ONT.txt -j 4 srun -c 10 -p ibis_medium --time=3-00:00:00 -J 02.2_svim_refine_{} --mem=80G -o log/02.2_svim_refine_{}_%j.log /bin/sh ./01_scripts/02.2_svim_refine.sh {} &
@@ -19,6 +19,8 @@ BAM_DIR="04_bam"
 CALLS_DIR="05_calls"
 MERGED_DIR="06_merged"
 FILT_DIR="07_filtered"
+
+BAM="$BAM_DIR/"$SAMPLE".ccs.bam"
 
 CPU=20
 
@@ -38,9 +40,9 @@ iris genome_in=$GENOME vcf_in=$CALLS_DIR/svim/$SAMPLE/"$SAMPLE"_PASS_correctedDU
 
 
 # Clean up
-rm $CALLS_DIR/svim/$SAMPLE/"$SAMPLE"_PASS_correctedDUPs.vcf
-rm $CALLS_DIR/svim/$SAMPLE/"$SAMPLE".txt
-rm $CALLS_DIR/svim/$SAMPLE/"$SAMPLE"_PASS_correctedDUPs_dupToIns.vcf
-rm $CALLS_DIR/svim/$SAMPLE/resultsstore.txt
-rm $CALLS_DIR/svim/$SAMPLE/"$SAMPLE"_dupToIns.txt
+#rm $CALLS_DIR/svim/$SAMPLE/"$SAMPLE"_PASS_correctedDUPs.vcf
+#rm $CALLS_DIR/svim/$SAMPLE/"$SAMPLE".txt
+#rm $CALLS_DIR/svim/$SAMPLE/"$SAMPLE"_PASS_correctedDUPs_dupToIns.vcf
+#rm $CALLS_DIR/svim/$SAMPLE/resultsstore.txt
+#rm $CALLS_DIR/svim/$SAMPLE/"$SAMPLE"_dupToIns.txt
 #rm $CALLS_DIR/svim/$SAMPLE/list_dupToIns.txt
