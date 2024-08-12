@@ -29,8 +29,8 @@ REGIONS_EX="02_infos/excl_chrs.txt"
 
 
 # LOAD REQUIRED MODULES
-#module load r/4.1
-#module load bcftools/1.13
+module load R/4.1
+module load bcftools/1.13
 
 # 1. Format header
 ## Extract lines for fields other than INFO, FORMAT and bcftools commands
@@ -56,10 +56,10 @@ bcftools reheader -s 02_infos/merged_sample_names.final $MERGED_UNION_DIR/"$(bas
 
 
 # Clean up 
-rm $MERGED_UNION_DIR/VCF_lines.txt
-rm $MERGED_UNION_DIR/VCF_chrs.txt
-rm $MERGED_UNION_DIR/"$(basename -s .vcf $MERGED_VCF)".header
-rm $MERGED_UNION_DIR/"$(basename -s .vcf $MERGED_VCF)".vcf.tmp
-rm $MERGED_UNION_DIR/"$(basename -s .vcf $MERGED_VCF)"_formatted.vcf
-rm 02_infos/merged_sample_names.original
-rm 02_infos/merged_sample_names.final
+#rm $MERGED_UNION_DIR/VCF_lines.txt
+#rm $MERGED_UNION_DIR/VCF_chrs.txt
+#rm $MERGED_UNION_DIR/"$(basename -s .vcf $MERGED_VCF)".header
+#rm $MERGED_UNION_DIR/"$(basename -s .vcf $MERGED_VCF)".vcf.tmp
+#rm $MERGED_UNION_DIR/"$(basename -s .vcf $MERGED_VCF)"_formatted.vcf
+#rm 02_infos/merged_sample_names.original
+#rm 02_infos/merged_sample_names.final
