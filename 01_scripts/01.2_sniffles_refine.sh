@@ -4,10 +4,8 @@
 # Launch on valeria in module collection with jasmine and iris
 
 # manitou
-# parallel -a 02_infos/ind_ONT.txt -j 4 srun -c 10 -p medium --time=3-00:00:00 -J 01.2_sniffles_refine_{} --mem=80G -o log/01.2_sniffles_refine_{}_%j.log /bin/sh ./01_scripts/01.2_sniffles_refine.sh {} &
+# parallel -a 02_infos/ind_PB.txt -j 4 srun -c 10 -p medium --time=3-00:00:00 -J 01.2_sniffles_refine_{} --mem=80G -o log/01.2_sniffles_refine_{}_%j.log /bin/sh ./01_scripts/01.2_sniffles_refine.sh {} &
 
-# valeria
-# parallel -a 02_infos/ind_ONT.txt -j 4 srun -c 10 -p ibis_medium --time=7-00:00:00 -J 01.2_sniffles_refine_{} --mem=100G -o log/01.2_sniffles_refine_{}_%j.log /bin/sh ./01_scripts/01.2_sniffles_refine.sh {} &
 
 
 # VARIABLES
@@ -19,6 +17,8 @@ BAM_DIR="04_bam"
 CALLS_DIR="05_calls"
 MERGED_DIR="06_merged"
 FILT_DIR="07_filtered"
+
+BAM="$BAM_DIR/"$SAMPLE".ccs.bam"
 
 CPU=10
 
@@ -34,12 +34,12 @@ echo "$CALLS_DIR/sniffles/$SAMPLE/"$SAMPLE"_PASS_PRECISE_correctedDUPs.vcf" > $C
 jasmine file_list=$CALLS_DIR/sniffles/$SAMPLE/"$SAMPLE".txt out_dir=$CALLS_DIR/sniffles/$SAMPLE genome_file=$GENOME out_file=$CALLS_DIR/sniffles/$SAMPLE/"$SAMPLE"_PASS_PRECISE_correctedDUPs_dupToIns.vcf --dup_to_ins --preprocess_only
 
 # 3. Refine with iris
-iris genome_in=$GENOME vcf_in=$CALLS_DIR/sniffles/$SAMPLE/"$SAMPLE"_PASS_PRECISE_correctedDUPs_dupToIns.vcf reads_in=$BAM_DIR/"$SAMPLE".bam vcf_out=$CALLS_DIR/sniffles/"$SAMPLE"_PASS_PRECISE_refined_dupToIns.vcf --out_dir=$CALLS_DIR/sniffles/$SAMPLE --keep_long_variants --also_deletions --threads=$CPU
+iris genome_in=$GENOME vcf_in=$CALLS_DIR/sniffles/$SAMPLE/"$SAMPLE"_PASS_PRECISE_correctedDUPs_dupToIns.vcf reads_in=$BAM vcf_out=$CALLS_DIR/sniffles/"$SAMPLE"_PASS_PRECISE_refined_dupToIns.vcf --out_dir=$CALLS_DIR/sniffles/$SAMPLE --keep_long_variants --also_deletions --threads=$CPU
 
 
 # Clean up 
-rm $CALLS_DIR/sniffles/$SAMPLE/"$SAMPLE"_PASS_PRECISE_correctedDUPs.vcf
-rm $CALLS_DIR/sniffles/$SAMPLE/"$SAMPLE".txt
-rm $CALLS_DIR/sniffles/$SAMPLE/"$SAMPLE"_PASS_PRECISE_correctedDUPs_dupToIns.vcf
-rm $CALLS_DIR/sniffles/$SAMPLE/resultsstore.txt
+#rm $CALLS_DIR/sniffles/$SAMPLE/"$SAMPLE"_PASS_PRECISE_correctedDUPs.vcf
+#rm $CALLS_DIR/sniffles/$SAMPLE/"$SAMPLE".txt
+#rm $CALLS_DIR/sniffles/$SAMPLE/"$SAMPLE"_PASS_PRECISE_correctedDUPs_dupToIns.vcf
+#rm $CALLS_DIR/sniffles/$SAMPLE/resultsstore.txt
 #rm $CALLS_DIR/sniffles/$SAMPLE/"$SAMPLE"_dupToIns.txt
