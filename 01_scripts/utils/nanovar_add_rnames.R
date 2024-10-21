@@ -14,7 +14,7 @@ reads <- data.table::as.data.table(read.table(READS_SUP, comment.char = "#", str
                                               col.names = c('SV_ID', 'READS'), sep = "\t"))
 
 
-# 2. Format read names to remove index ------------------------------------
+# 2. Format read names to remove index (the string preceded by ~)----------
 reads$reads_reformat <- 
   sapply(X = reads$READS, FUN = function(x) {
     gsub(pattern = "~[0-9A-Za-z]+,", replacement = ",", x)

@@ -8,7 +8,7 @@
 
 # Run on MANITOU only in a conda env
 # 
-# parallel -a 02_infos/ind_ONT.txt -j 4 srun -c 10 -p medium --time=3-00:00:00 -J 03.1_nanovar_call_{} --mem=100G -o log/03.1_nanovar_call_{}_%j.log /bin/sh ./01_scripts/03.1_nanovar_call.sh {} &
+# parallel -a 02_infos/ind_safo_LR.txt -j 4 srun -c 10 -p small -J 03.1_nanovar_call_{} --mem=100G -o log/03.1_nanovar_call_{}_%j.log /bin/sh ./01_scripts/03.1_nanovar_call.sh {} &
 
 #srun -c 10 -p medium --time=3-00:00:00 -J 03.1_nanovar_call_safoPUVx_001-21 --mem=100G -o log/03.1_nanovar_call_safoPUVx_001-21_%j.log /bin/sh ./01_scripts/03.1_nanovar_call.sh safoPUVx_001-21 &
 
@@ -17,7 +17,7 @@
 # VARIABLES
 SAMPLE=$1
 
-GENOME_NV="03_genome/genome_NV/genome.fasta"
+GENOME_NV="03_genome/genome_NV/genome.fasta"  # If using NanoVar 1.8.1, no additional genome indexes are created, so we would not need a different ref genome directory
 CHR_BED="02_infos/chrs.bed.gz"
 BAM_DIR="04_bam"
 CALLS_DIR="05_calls"
@@ -28,8 +28,12 @@ CPU=10
 
 BAM="$BAM_DIR/"$SAMPLE".ccs.bam"
 
-EXCL_BED="02_infos/excl_chrs.bed.gz"
+EXCL_BED="02_infos/excl_chrs.bed"
 
+#export TMPDIR="$CALLS_DIR/nanovar/$SAMPLE"
+
+# LOAD REQUIRED MODULES
+module load bcftools/1.15
 
 # 0. Create output dir
 if [[ ! -d "$CALLS_DIR/nanovar/$SAMPLE" ]]
@@ -38,10 +42,10 @@ then
 fi
 
 # 1. Run NanoVar
-nanovar $BAM $GENOME_NV $CALLS_DIR/nanovar/$SAMPLE -x pacbio-ccs -t $CPU -f $EXCL_BED
+nanovar $BAM $GENOME_NV $CALLS_DIR/nanovar/$SAMPLE -x pacbio-ccs -t $CPU --debug -f $EXCL_BED --mincov 2 # default min number of reads to call breakend was increased to 4 in version 1.8.1, so I set it to 2 because we have low coverage
 
 # 2. Sort, remove SVs where END is < than POS (usually happens if a SV is at POS 1 on an uplaced contig), then compress and index
-bcftools sort $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE".nanovar.pass.vcf | bcftools filter -e "POS > INFO/END" > $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_chrs.vcf
+bcftools sort $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE".ccs.nanovar.pass.vcf | bcftools filter -e "POS > INFO/END" > $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_chrs.vcf
 bgzip $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_chrs.vcf -f
 tabix -p vcf $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_chrs.vcf.gz -f
 
@@ -63,3 +67,5 @@ bgzip $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_PASS.annot -f
 tabix -s1 -b2 -e4 $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_PASS.annot.gz -f
 
 bcftools annotate -a $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_PASS.annot.gz -h 02_infos/annot.hdr -c CHROM,POS,ID,END,RNAMES $CALLS_DIR/nanovar/$SAMPLE/"$SAMPLE"_PASS.vcf > $CALLS_DIR/nanovar/"$SAMPLE"_PASS.vcf
+
+# if we need to rename sample in the VCF at this point: sed -E 's/^(\#CHROM.+)\.ccs/\1/' 
